@@ -1,0 +1,193 @@
+<?DOCTYPE html>
+<html>
+	<head>
+<!--
+		<script src="a.js"></script>
+-->
+		<script src="jquery-3.1.1.js"></script>
+		<style>
+		</style>
+	</head>
+	<body style="background-color: 333740;">
+		<span id="textSizer"></span>
+		<div>
+			<svg id="gsvg" viewBox="0 0 800 1200" width="800" height="800" xmlns="http://www.w3.org/2000/svg">
+	    	</svg>
+		</div>
+
+		<script>
+			var cellWidth = 200;
+			var cellHeight = 200;
+			var gVertices = new Array();
+
+			var statusColor = {
+				UNKNOWN : '#919191',
+				UP : 'lime',
+				DOWN : 'red',
+				MALFUNCTION : '#FFCE42' 
+			};
+
+			function createSVGElement(type) {
+				return $(document.createElementNS('http://www.w3.org/2000/svg', type));
+			}
+
+			function drawHalfCircle(x, y, radius, circleWidth, isLeft) {
+				var elem = createSVGElement('path');
+				var halfRadius = radius/2;
+				var innerRadius = radius - circleWidth;
+				var innerHalfRadius = halfRadius - circleWidth;
+
+				var dValue;
+
+				if (isLeft) {
+					dValue = 'M ' + halfRadius + ' ' + radius + ' A ' + halfRadius + ' ' + halfRadius + ' 0 0 1 ' + halfRadius + ' 0 L ' + halfRadius + ' ' + circleWidth + ' A ' + innerHalfRadius + ' ' + innerHalfRadius + ' 0 0 0 ' + halfRadius + ' ' + innerRadius + ' L ' + halfRadius + ' ' + radius; 
+				} else {
+					dValue = 'M ' + halfRadius + ' ' + radius + ' A ' + halfRadius + ' ' + halfRadius + ' 0 1 0 ' + halfRadius + ' 0 L ' + halfRadius + ' ' + circleWidth + ' A ' + innerHalfRadius + ' ' + innerHalfRadius + ' 0 1 1 ' + halfRadius + ' ' + innerRadius + ' L ' + halfRadius + ' ' + radius; 
+				}
+				elem.attr('transform', 'translate(' + x + ',' + y + ')');
+				elem.attr('d', dValue);
+				return elem; 
+			}
+
+			function drawText(text, centerX, y, fontSize, maxWidthInPx) {
+				var textSizerElem = $('#textSizer');
+				textSizerElem.css('font-size', fontSize + 'px');
+				textSizerElem.css('font-family', 'Verdana');
+				textSizerElem.html(text);
+				var textWidth = textSizerElem.width();
+
+				var nbLines = Math.ceil(textWidth / maxWidthInPx);
+				var textLines = new Array();
+				if (nbLines==1) {
+					textLines[0] = text;
+				} else {
+					var maxTextLineLength = (text.length/nbLines);
+					
+					var startPos = 0; var lastPos = 0; var pos;
+					while (true) {
+						pos = text.indexOf(' ', lastPos+1);
+						if (pos>-1) {
+							if (pos-startPos>maxTextLineLength) {
+								textLines.push(text.substring(startPos, lastPos));
+								startPos = lastPos;
+							}
+							lastPos = pos;
+						} else {
+							break;
+						}
+					}
+					if (startPos<text.length) {
+						textLines.push(text.substring(startPos));
+					}					
+				}				
+
+				var elem = createSVGElement('text');
+				elem.attr('x', centerX);
+				elem.attr('y', y);
+				elem.attr('fill', 'white');
+				elem.attr('text-anchor', 'middle');
+				elem.attr('font-family', 'Verdana');
+				elem.attr('font-size', fontSize);
+				for (var i=0; i<nbLines; i++) {
+					var tSpanElem = createSVGElement('tspan');
+					tSpanElem.html(textLines[i]);
+					tSpanElem.attr('dy', (fontSize*1.4*i) + 'px');
+					tSpanElem.attr('x', centerX);
+					tSpanElem.attr('text-anchor', 'middle');
+					elem.append(tSpanElem);
+				}
+				return elem;
+			}
+
+			function drawWebApp(nodeId, appName, x, y, color) {
+				var gElem = createSVGElement('g');
+				gElem.attr('id', nodeId);
+				gElem.attr('fill', color);
+				gElem.attr('transform', 'translate(' + x + ',' + y + ')');
+
+				var circleRadius = 100;
+				var textHeight = 15;
+				var circleLeft = (cellWidth - circleRadius)/2;
+
+				gElem.append(drawHalfCircle(circleLeft, 40, circleRadius, 10, true));
+				gElem.append(drawHalfCircle(circleLeft, 40, circleRadius, 10, false));
+				gElem.append(drawText(appName, cellWidth/2, cellHeight-textHeight-20, textHeight, cellWidth-40));
+				$("#gsvg").append(gElem);
+
+			}
+
+			function drawEdge(parentX, parentY, childX, childY, lineWidth) {
+				console.log("Draw edge " + parentX + "," + parentY + " - " + childX + "," + childY);
+				var halfWidth = Math.ceil(lineWidth/2);
+				var adjX1 = parentX + cellWidth/2;
+				var adjY1 = parentY + cellHeight - 10;
+				var adjX2 = childX + cellWidth/2;
+				var adjY2 = childY + 40 + 50;
+
+				var pElem = createSVGElement('line');
+				pElem.attr('x1', adjX1);
+				pElem.attr('y1', adjY1);
+				pElem.attr('x2', adjX2);
+				pElem.attr('y2', adjY2);
+				pElem.attr('stroke-width', lineWidth);
+				pElem.attr('stroke', '#A0A0A0');
+
+				var gElem = createSVGElement('g');
+				gElem.attr('fill', '#A0A0A0');
+				gElem.append(pElem);
+				$("#gsvg").append(gElem);
+			}
+
+			function findVertice(anId, vertices) {
+				for (var i=0; i<vertices.length; i++) {
+					if (vertices[i].id==anId) {
+						return vertices[i];
+					}
+				}
+				return null;
+			} 
+
+			function drawGraph() {
+				$.getJSON("/api/graph", function(data) {
+					var edges = data.edges;
+					edges.forEach(function(edge) {
+						console.log("Draw edge");
+
+						var parentVertice = findVertice(edge.parentEdgeId, data.vertices);
+						var childVertice = findVertice(edge.childEdgeId, data.vertices);
+
+						drawEdge(parentVertice.x*cellWidth, parentVertice.y*cellHeight, childVertice.x*cellWidth, childVertice.y*cellHeight, 4);
+					});
+
+					var vertices = data.vertices;
+					gVertices = vertices;
+					vertices.forEach(function(vertice) {
+						console.log("Draw vertice ", vertice);
+						drawWebApp(""+vertice.id, vertice.appName, vertice.x*cellWidth, vertice.y*cellHeight, statusColor.UNKNOWN);
+					});
+				});
+			}
+
+			function drawStatus() {
+				$.getJSON("/api/status", function(data) {
+					data.forEach(function(status) {
+						console.log("Draw status", status);
+						
+						var verticeId = status.nodeId;
+						$("#" + verticeId).remove();
+						var vertice = findVertice(verticeId,  gVertices);
+						drawWebApp(""+verticeId, vertice.appName, vertice.x*cellWidth, vertice.y*cellHeight, statusColor[status.status]);
+						
+					});
+				});
+			}
+
+			jQuery(document).ready(function(){
+				drawGraph();
+
+				setInterval(drawStatus, 5000);
+			});
+		</script>
+
+	</body>
+</html>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://ddv.com/graph/" targetNamespace="http://ddv.com/graph/" elementFormDefault="unqualified">
+    <element name="graph" type="tns:graphType"></element>
+
+    <complexType name="nodeType">
+    	<sequence>
+    		<element name="appName" type="string"></element>
+    		<element name="appType" type="tns:appTypeType"></element>
+    		<element name="cluster" type="boolean"></element>
+    		<element name="groupName" type="string" maxOccurs="1" minOccurs="0"></element>
+    		<element name="dependencies" type="tns:dependenciesType" maxOccurs="1" minOccurs="0"></element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="dependenciesType">
+    	<sequence>
+    		<element name="appName" type="string" minOccurs="1" maxOccurs="unbounded"></element>
+    	</sequence>
+    </complexType>
+
+
+    <complexType name="graphType">
+    	<sequence>
+    		<element name="node" type="tns:nodeType" minOccurs="1" maxOccurs="unbounded"></element>
+    	</sequence>
+    </complexType>
+
+
+    <simpleType name="appTypeType">
+    	<restriction base="string">
+    		<enumeration value="webApp"></enumeration>
+    		<enumeration value="database"></enumeration>
+    		<enumeration value="legacyApp"></enumeration>
+    	</restriction>
+    </simpleType>
+</schema>

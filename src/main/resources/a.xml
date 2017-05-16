@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+
+<tns:graph xmlns:tns="http://ddv.com/graph/" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://ddv.com/graph/ graph.xsd ">
+    <node>
+        <appName>SAML Proxy</appName>
+        <appType>webApp</appType>
+        <cluster>true</cluster>
+        <dependencies>
+            <appName>Account Service UI</appName>
+            <appName>Transaction Service UI</appName>
+            <appName>Multi-purpose Service UI</appName>
+        </dependencies>
+    </node>
+    <node>
+        <appName>Account Service UI</appName>
+        <appType>webApp</appType>
+        <cluster>true</cluster>
+        <dependencies>
+            <appName>Account Business Service</appName>
+        </dependencies>
+    </node>
+    <node>
+        <appName>Account Business Service</appName>
+        <appType>webApp</appType>
+        <cluster>true</cluster>
+        <dependencies>
+            <appName>ViewStore Account</appName>
+	        <appName>Permission Business Service</appName>
+        </dependencies>
+    </node>
+    <node>
+        <appName>ViewStore Account</appName>
+        <appType>database</appType>
+        <cluster>true</cluster>
+    </node>
+    <node>
+        <appName>Transaction Service UI</appName>
+        <appType>webApp</appType>
+        <cluster>true</cluster>
+        <dependencies>
+            <appName>Transaction Business Service</appName>
+        </dependencies>
+    </node>
+    <node>
+        <appName>Transaction Business Service</appName>
+        <appType>webApp</appType>
+        <cluster>true</cluster>
+        <dependencies>
+            <appName>ViewStore Transaction</appName>
+	        <appName>Permission Business Service</appName>
+        </dependencies>
+    </node>
+    <node>
+        <appName>ViewStore Transaction</appName>
+        <appType>database</appType>
+        <cluster>true</cluster>
+    </node>
+    <node>
+        <appName>Multi-purpose Service UI</appName>
+        <appType>webApp</appType>
+        <cluster>true</cluster>
+        <dependencies>
+            <appName>Preference Business Service</appName>
+            <appName>Feature Toggling Business Service</appName>
+        </dependencies>
+    </node>
+    <node>
+        <appName>Preference Business Service</appName>
+        <appType>webApp</appType>
+        <cluster>true</cluster>
+        <dependencies>
+            <appName>Preferences Database</appName>
+        </dependencies>
+    </node>
+    <node>
+        <appName>Preferences Database</appName>
+        <appType>database</appType>
+        <cluster>true</cluster>
+    </node>
+    <node>
+        <appName>Feature Toggling Business Service</appName>
+        <appType>webApp</appType>
+        <cluster>true</cluster>
+    </node>
+    <node>
+        <appName>Permission Business Service</appName>
+        <appType>webApp</appType>
+        <cluster>true</cluster>
+        <dependencies>
+            <appName>Permission Database</appName>
+        </dependencies>
+    </node>
+    <node>
+        <appName>Permission Database</appName>
+        <appType>database</appType>
+        <cluster>true</cluster>
+    </node>
+</tns:graph>
