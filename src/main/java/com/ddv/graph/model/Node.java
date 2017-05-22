@@ -16,6 +16,7 @@ public class Node {
 	private HashSet<Node> children;
 	private HashSet<Node> parents;
 	private int layerPos = 0;
+	private int x = 0;
 	
 	public Node(NodeType aMetaData, int anId) {
 		id = anId;
@@ -42,6 +43,14 @@ public class Node {
 	
 	public int getLayerPos() {
 		return layerPos;
+	}
+	
+	public int getX() {
+		return x;
+	}
+	
+	public void setX(int aX) {
+		x = aX;
 	}
 	
 	public boolean isDependentUpon(String anAppName) {

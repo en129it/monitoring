@@ -1,7 +1,12 @@
 package com.ddv.graph.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.ddv.graph.service.Utils;
 
@@ -93,6 +98,93 @@ public class Layer {
 		
 		return isChange;
 	}
+	
+// NEW START	
+	boolean adjustNodeHorizontalPosition() {
+		boolean isModif = false;
+		for (Node node : nodes) {
+			Set<Node> children = node.getChildren();
+			if (children.isEmpty()) {
+				continue;
+			}
+			
+			HashSet<Node> siblings = new HashSet<Node>(); 
+			getParents(children, siblings);
+			if (siblings.isEmpty()) {
+				continue;
+			}
+
+			List<Node> target = toOrderedList(siblings);
+			List<Node> ref = toOrderedList(children);
+
+			int widthSiblings = getXIntervalWidth(target);
+			int widthChildrens = getXIntervalWidth(ref);
+			
+			if (widthSiblings!=widthChildrens) {
+				if (widthSiblings>widthChildrens) {
+					// Adjust children
+					List<Node> inter = ref;
+					ref = target;
+					target = inter;
+				} else {
+					// Adjust siblings
+				}
+				
+				double targetCenter = getXIntervalCenter(target);
+				double refCenter = getXIntervalCenter(ref);
+				int offset = (int)(refCenter - targetCenter);
+				if (offset!=0) {
+					Node targetNode = ((offset>0) ? target : ref).get(0);
+					graph.findLayer(targetNode).offsetNodes(targetNode, offset);
+					isModif = true;
+				}
+			}
+		}
+		return isModif;
+	}
+	
+	private void offsetNodes(Node aStartNode, int anOffset) {
+		int pos = nodes.indexOf(aStartNode);
+		if (pos>-1) {
+			Node node = null;
+			for (int i=pos; i<nodes.size(); i++) {
+				node = nodes.get(i);
+				node.setX(node.getX() + anOffset);
+			}
+		}
+	}
+	
+	private List<Node> toOrderedList(Set<Node> aNodes) {
+		ArrayList<Node> nodes = new ArrayList<Node>(aNodes);
+		Collections.sort(nodes, new Comparator<Node>() {
+			@Override
+			public int compare(Node aFirst, Node aSecond) {
+				return aFirst.getX()-aSecond.getX();
+			}
+		});
+		return nodes;
+	}
+	
+	private void getParents(Set<Node> aNodes, Set<Node> anOut) {
+		for (Node node : aNodes) {
+			Set<Node> parents = node.getParents();
+			for (Node parent : parents) {
+				if (nodes.contains(parent)) {
+					anOut.add(parent);
+				}
+			}
+		}
+	}
+	
+	private double getXIntervalCenter(List<Node> anOrderedNodes) {
+		return ( ((double)anOrderedNodes.get(0).getX()) + ((double)anOrderedNodes.get(anOrderedNodes.size()-1).getX()) ) / 2d;
+	}
+	
+	private int getXIntervalWidth(List<Node> anOrderedNodes) {
+		return anOrderedNodes.get(anOrderedNodes.size()-1).getX() - anOrderedNodes.get(0).getX(); 
+	}
+// NEW END	
+	
 /*
 	
 	public int countCrossings(List<Node> aNodeList) {

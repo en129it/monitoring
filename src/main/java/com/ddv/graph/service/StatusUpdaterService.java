@@ -42,7 +42,7 @@ public class StatusUpdaterService {
 	
 	public StatusUpdaterService() {
 	}
-	
+/*	
 	@EventListener
 	public void onApplicationReady(ApplicationReadyEvent event) {
 		if ((scheduledTask==null) || (scheduledTask.isDone())) {
@@ -78,5 +78,5 @@ public class StatusUpdaterService {
 			service.updateStatus((response.getStatusCode().is2xxSuccessful()) ? ServiceStatusEnum.UP : ServiceStatusEnum.DOWN, System.currentTimeMillis());
 		}
 	}
-	
+	*/
 }

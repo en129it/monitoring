@@ -83,7 +83,7 @@ public class DiscoveryClientConfiguration {
 		
 		return graph;
     }
-    
+/*    
 	@Bean
 	public ThreadPoolTaskScheduler statusUpdaterTaskScheduler() {
 		ThreadPoolTaskScheduler rslt = new ThreadPoolTaskScheduler();
@@ -91,7 +91,7 @@ public class DiscoveryClientConfiguration {
 		rslt.setRemoveOnCancelPolicy(true);
 		return rslt;
 	}
-    
+  */  
     @Bean
     public StatusUpdaterService statusUpdaterService() {
     	return new StatusUpdaterService();

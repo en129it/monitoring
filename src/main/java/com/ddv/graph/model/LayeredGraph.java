@@ -44,9 +44,19 @@ public class LayeredGraph {
 		}
 	}
 	
+// NEW START	
 	private void adjustNodeHorizontalPosition() {
-		
+		boolean isModif = true; int count = 0;
+		while ((count<100) && (isModif)) {
+			System.out.println("Adjust horizontal position (iteration " + count + ")");
+			isModif = false;
+			for (Layer layer : layers) {
+				isModif = layer.adjustNodeHorizontalPosition() || isModif;
+			}
+			count++;
+		}
 	}
+// NEW END	
 	
 	private void createLayers(int aMaxLayers, Set<Node> aNodes) {
 		for (int i=0; i<aMaxLayers; i++) {

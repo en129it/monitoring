@@ -8,11 +8,14 @@
 		<style>
 		</style>
 	</head>
-	<body style="background-color: 333740;">
+	<body style="background-color: 333740; color: white;">
 		<span id="textSizer"></span>
-		<div>
+		<div style="display:inline-block;">
 			<svg id="gsvg" viewBox="0 0 800 1200" width="800" height="800" xmlns="http://www.w3.org/2000/svg">
 	    	</svg>
+		</div>
+		<div style="display:inline-block; vertical-align: top;">
+			Details
 		</div>
 
 		<script>
@@ -53,6 +56,7 @@
 				var textSizerElem = $('#textSizer');
 				textSizerElem.css('font-size', fontSize + 'px');
 				textSizerElem.css('font-family', 'Verdana');
+				textSizerElem.css('color', '333740');
 				textSizerElem.html(text);
 				var textWidth = textSizerElem.width();
 
@@ -104,6 +108,10 @@
 				gElem.attr('id', nodeId);
 				gElem.attr('fill', color);
 				gElem.attr('transform', 'translate(' + x + ',' + y + ')');
+				// NEW START
+				gElem.attr('style', 'cursor: pointer');
+				gElem.attr('onclick', 'alert("Toto")');
+				// NEW END
 
 				var circleRadius = 100;
 				var textHeight = 15;
@@ -115,9 +123,114 @@
 				$("#gsvg").append(gElem);
 
 			}
+			
+			// NEW START
+			function drawMemoryUsage() {
+			}
+			// NEW END
 
-			function drawDatabase() {
-				
+			function drawDatabase(nodeId, appName, x, y, color) {
+				// NEW START
+				var gElem = createSVGElement('g');
+				gElem.attr('id', nodeId);
+				gElem.attr('fill', color);
+				gElem.attr('transform', 'translate(' + x + ',' + y + ')');
+				gElem.attr('style', 'stroke: ' + color + '; fill: none');
+
+				var lineWidth = 7;
+				var centerX = cellWidth/2;
+				var databaseIconWidth = 80;
+				var databaseIconHalfWidth = databaseIconWidth/2;
+				var top = 40;
+				var databaseIconHeight = cellHeight-top-60;
+				var databaseIconVerticalRadius = 15;
+				var databaseIconBase = (top+databaseIconHeight-databaseIconVerticalRadius);
+				var textHeight = 15;
+
+				var elem = createSVGElement('ellipse');
+				elem.attr('cx', centerX);
+				elem.attr('cy', top + databaseIconVerticalRadius);
+				elem.attr('rx', databaseIconHalfWidth);
+				elem.attr('ry', databaseIconVerticalRadius);
+				elem.attr('style', 'stroke-width: ' + lineWidth);
+				gElem.append(elem);
+
+				elem = createSVGElement('path');
+				elem.attr('d', 'M ' + (centerX-databaseIconHalfWidth) + ' ' + databaseIconBase + ' A ' + databaseIconHalfWidth + ' ' + databaseIconVerticalRadius + ' 0 0 0 ' + (centerX+databaseIconHalfWidth) + ' ' + databaseIconBase );
+				elem.attr('style', 'stroke-width: ' + lineWidth);
+				gElem.append(elem);
+
+				elem = createSVGElement('line');
+				elem.attr('x1', (centerX-databaseIconHalfWidth));
+				elem.attr('y1', (top+databaseIconVerticalRadius));
+				elem.attr('x2', (centerX-databaseIconHalfWidth));
+				elem.attr('y2', databaseIconBase);
+				elem.attr('stroke-width', lineWidth);
+				gElem.append(elem);
+
+				elem = createSVGElement('line');
+				elem.attr('x1', (centerX+databaseIconHalfWidth));
+				elem.attr('y1', (top+databaseIconVerticalRadius));
+				elem.attr('x2', (centerX+databaseIconHalfWidth));
+				elem.attr('y2', databaseIconBase);
+				elem.attr('stroke-width', lineWidth);
+				gElem.append(elem);
+
+				gElem.append(drawText(appName, cellWidth/2, cellHeight-textHeight-20, textHeight, cellWidth-40));
+
+				$("#gsvg").append(gElem);
+				// NEW END
+			}
+
+
+			function drawLegacyApp(nodeId, appName, x, y, color) {
+				// NEW START
+				var gElem = createSVGElement('g');
+				gElem.attr('id', nodeId);
+				gElem.attr('fill', color);
+				gElem.attr('transform', 'translate(' + x + ',' + y + ')');
+				gElem.attr('style', 'stroke: ' + color + '; fill: none');
+
+				var lineWidth = 7;
+				var top = 40;
+				var ri = 30;
+				var re = 50;
+				var centerX = cellWidth/2;
+				var centerY = top + re;
+				var angle = (360.0 / 24) * (Math.PI/180);
+				var initX, initY;
+				var textHeight = 15;
+
+				var pathStr = 'M ' + (centerX+re) + ' ' + centerY;
+				for (var i=0; i<24; i=i+4) {
+					pathStr += ' A ' + re + ' ' + re + ' 0 0 1 ' + (centerX + (Math.cos((i+1)*angle)*re)) + ' ' + (centerY + (Math.sin((i+1)*angle)*re));
+					if (i==0) {
+						initX = (centerX + (Math.cos(angle)*re));
+						initY = (centerY + (Math.sin(angle)*re));
+					} 
+					pathStr += ' L ' + (centerX + (Math.cos((i+2)*angle)*ri)) + ' ' + (centerY + (Math.sin((i+2)*angle)*ri));
+					pathStr += ' A ' + ri + ' ' + ri + ' 0 0 1 ' + (centerX + (Math.cos((i+3)*angle)*ri)) + ' ' + (centerY + (Math.sin((i+3)*angle)*ri)); 
+					pathStr += ' L ' + (centerX + (Math.cos((i+4)*angle)*re)) + ' ' + (centerY + (Math.sin((i+4)*angle)*re));
+				}
+				pathStr += ' A ' + re + ' ' + re + ' 0 0 1 ' + initX + ' ' + initY;
+
+
+				elem = createSVGElement('path');
+				elem.attr('d', pathStr);
+				elem.attr('style', 'stroke-width: ' + lineWidth);
+				gElem.append(elem);
+
+				elem = createSVGElement('circle');
+				elem.attr('cx', centerX);
+				elem.attr('cy', centerY);
+				elem.attr('r', 12);
+				elem.attr('style', 'stroke-width: ' + lineWidth);
+				gElem.append(elem);
+
+				gElem.append(drawText(appName, cellWidth/2, cellHeight-textHeight-20, textHeight, cellWidth-40));
+
+				$("#gsvg").append(gElem);
+				// NEW END
 			}
 
 			function drawEdge(parentX, parentY, childX, childY, lineWidth) {
@@ -167,7 +280,15 @@
 					gVertices = vertices;
 					vertices.forEach(function(vertice) {
 						console.log("Draw vertice ", vertice);
-						drawWebApp(""+vertice.id, vertice.appName, vertice.x*cellWidth, vertice.y*cellHeight, statusColor.UNKNOWN);
+						// NEW START
+						if (vertice.appType=="WEB_APP") {
+							drawWebApp(""+vertice.id, vertice.appName, vertice.x*cellWidth, vertice.y*cellHeight, statusColor.UNKNOWN);
+						} else if (vertice.appType=="DATABASE") {
+							drawDatabase(""+vertice.id, vertice.appName, vertice.x*cellWidth, vertice.y*cellHeight, statusColor.UNKNOWN);
+						} else if (vertice.appType=="LEGACY_APP") {
+							drawLegacyApp(""+vertice.id, vertice.appName, vertice.x*cellWidth, vertice.y*cellHeight, statusColor.UNKNOWN);
+						}
+						// NEW END
 					});
 				});
 			}
@@ -176,12 +297,33 @@
 				$.getJSON("/api/status", function(data) {
 					data.forEach(function(status) {
 						console.log("Draw status", status);
-						
+						// NEW START
+						var gElem = $("#" + status.nodeId);
+						gElem.css('color', statusColor[status.status]);
+
+						var memoryElemId = nodeId + "_mem";
+						$("#" + memoryElemId).remove();
+						drawMemoryUsage();
+
+						updateWebApp(status.nodeId, statusColor[status.status], status.heapCommittedInBytes, status.heapUsedInBytes);
+
+			function updateWebApp(nodeId, color, heapCommittedInBytes, heapUsedInBytes) {
+				var gElem = $("#" + nodeId);
+				gElem.css('color', color);
+
+				var memoryElemId = nodeId + "_mem";
+				$("#" + memoryElemId).remove();
+
+			}
+
+
+
 						var verticeId = status.nodeId;
 						$("#" + verticeId).remove();
 						var vertice = findVertice(verticeId,  gVertices);
-						drawWebApp(""+verticeId, vertice.appName, vertice.x*cellWidth, vertice.y*cellHeight, statusColor[status.status]);
+						updateWebApp(""+verticeId, vertice.appName, vertice.x*cellWidth, vertice.y*cellHeight, statusColor[status.status]);
 						
+						// NEW END
 					});
 				});
 			}
